@@ -1,0 +1,10 @@
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: samahmoumen-portfolio:latest
+    ports:
+      - "8080:80"
+    environment:
+      - NODE_ENV=production
