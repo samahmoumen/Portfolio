@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  portfolio:
+    build: .
+    image: samahmoumen/portfolio:latest
+    container_name: portfolio
+    env_file:
+      - .env.exemple
+    ports:
+      - "${PORT}:80"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  reverse-proxy:
+    image: nginx:stable-alpine
+    container_name: nginx-proxy
+    env_file:
+      - .env.exemple
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/letsencrypt
+    restart: unless-stopped
