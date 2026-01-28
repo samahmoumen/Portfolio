@@ -11,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    run: CI=false npm run build
 
     steps:
       - name: Checkout repository
@@ -26,7 +25,8 @@ jobs:
         run: npm install
 
       - name: Build React app
-        run: npm run build
+        run: CI=false npm run build
+
 
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
