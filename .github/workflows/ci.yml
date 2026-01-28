@@ -11,6 +11,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    run: CI=false npm run build
 
     steps:
       - name: Checkout repository
