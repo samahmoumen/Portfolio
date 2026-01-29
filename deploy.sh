@@ -2,7 +2,14 @@
 
 echo "=== Déploiement du portfolio sur $VM_HOST ==="
 
-ssh -p $VM_PORT $VM_USER@$VM_HOST << 'EOF'
+# Ajouter la VM aux known_hosts pour SSH
+mkdir -p ~/.ssh
+ssh-keyscan -H $VM_HOST >> ~/.ssh/known_hosts
+
+# Connexion SSH et déploiement
+ssh -p $VM_PORT -o StrictHostKeyChecking=no $VM_USER@$VM_HOST << EOF
+  set -e
+
   echo "-> Création du dossier projet"
   mkdir -p $PROJECT_DIR
   cd $PROJECT_DIR
@@ -13,6 +20,9 @@ ssh -p $VM_PORT $VM_USER@$VM_HOST << 'EOF'
   else
     git clone $REPO_URL .
   fi
+
+  echo "-> Création ou mise à jour du fichier .env"
+  echo "$ENV_FILE" > .env
 
   echo "-> Vérification installation Docker"
   if ! command -v docker &> /dev/null; then
@@ -31,11 +41,12 @@ ssh -p $VM_PORT $VM_USER@$VM_HOST << 'EOF'
   fi
 
   echo "-> Pull de l'image Docker"
+  docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
   docker pull samahmoumen/portfolio:latest
 
   echo "-> Lancement ou redémarrage des containers avec .env"
-  docker compose --env-file $ENV_FILE down
-  docker compose --env-file $ENV_FILE up -d --build
+  docker compose --env-file .env down
+  docker compose --env-file .env up -d --build
 
   echo "-> Nettoyage des anciennes images et conteneurs"
   docker system prune -f
@@ -44,6 +55,5 @@ ssh -p $VM_PORT $VM_USER@$VM_HOST << 'EOF'
   docker ps
   docker inspect --format='{{json .State.Health}}' portfolio | jq
 EOF
-
 
 echo "=== Déploiement terminé ✅ ==="
