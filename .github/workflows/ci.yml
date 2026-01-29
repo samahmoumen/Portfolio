@@ -44,7 +44,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/samahmoumen-portfolio:v1.0.0
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${DOCKERHUB_IMAGE}:v1.0.0
 
   deploy:
     name: Deploy on VM via SSH
