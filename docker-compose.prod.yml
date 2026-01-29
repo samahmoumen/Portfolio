@@ -2,7 +2,7 @@
 services:
   portfolio:
     build: .
-    image: "${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:v1.0.0"
+    image: "${DOCKERHUB_USERNAME}/${DOCKERHUB_IMAGE}:v2.0.0"
     container_name: portfolio
     env_file:
       - .env
