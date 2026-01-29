@@ -45,8 +45,8 @@ ssh -p "$VM_PORT" -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" << EOF
   docker pull "\$DOCKERHUB_USERNAME/samahmoumen-portfolio:v1.0.0"
 
   echo "-> Lancement containers"
-  docker compose --env-file .env down || true
-  docker compose --env-file .env up -d
+docker compose -f docker-compose.prod.yml --env-file .env down || true
+docker compose -f docker-compose.prod.yml --env-file .env up -d
 
   echo "-> Containers actifs"
   docker ps
