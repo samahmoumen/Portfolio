@@ -3,7 +3,7 @@ version: "3.9"
 services:
   portfolio:
     build: .
-    image: samahmn/portfolio:latest
+    image: "${DOCKERHUB_USERNAME}/portfolio:latest"
     container_name: portfolio
     env_file:
       - .env

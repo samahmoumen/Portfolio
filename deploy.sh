@@ -41,7 +41,7 @@ ssh -p $VM_PORT -o StrictHostKeyChecking=no $VM_USER@$VM_HOST << EOF
   fi
 
   echo "-> Pull de l'image Docker"
-  docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
+  docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
   docker pull $DOCKERHUB_USERNAME/portfolio:latest
 
   echo "-> Lancement ou redémarrage des containers avec .env"
