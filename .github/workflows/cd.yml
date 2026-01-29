@@ -22,7 +22,7 @@ jobs:
 
       - name: Deploy application via deploy.sh
         run: |
-          ssh-keyscan -H $VM_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -p $VM_PORT -H $VM_HOST >> ~/.ssh/known_hosts
           bash ./deploy.sh
         env:
           VM_HOST: ${{ secrets.VM_HOST }}

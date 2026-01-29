@@ -2,12 +2,12 @@
 
 echo "=== Déploiement du portfolio sur $VM_HOST ==="
 
-# Ajouter la VM aux known_hosts pour SSH
+
 mkdir -p ~/.ssh
 ssh-keyscan -H $VM_HOST >> ~/.ssh/known_hosts
 
-# Connexion SSH et déploiement
-ssh -p $VM_PORT -o StrictHostKeyChecking=no $VM_USER@$VM_HOST << EOF
+
+ssh -t -p $VM_PORT -o StrictHostKeyChecking=no $VM_USER@$VM_HOST << EOF
   set -e
 
   echo "-> Création du dossier projet"
