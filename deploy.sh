@@ -42,7 +42,7 @@ ssh -p "$VM_PORT" -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" << EOF
   echo "\$DOCKERHUB_TOKEN" | docker login -u "\$DOCKERHUB_USERNAME" --password-stdin
 
   echo "-> Pull image Docker"
-  docker pull "\$DOCKERHUB_USERNAME/samahmoumen-portfolio:latest"
+  docker pull "\$DOCKERHUB_USERNAME/samahmoumen-portfolio:v1.0.0"
 
   echo "-> Lancement containers"
   docker compose --env-file .env down || true

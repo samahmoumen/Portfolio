@@ -43,6 +43,6 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/samahmoumen-portfolio:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/samahmoumen-portfolio:v1.0.0
 
 
