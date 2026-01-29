@@ -32,7 +32,6 @@ jobs:
           VM_USER: ${{ secrets.VM_USER }}
           VM_PORT: ${{ secrets.VM_PORT }}
           PROJECT_DIR: ${{ secrets.PROJECT_DIR }}
-          REPO_URL: ${{ secrets.REPO_URL }}
           ENV_FILE: ${{ secrets.ENV_FILE }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
