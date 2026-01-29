@@ -11,6 +11,14 @@ echo "-> Création du dossier projet"
 mkdir -p "$PROJECT_DIR"
 cd "$PROJECT_DIR"
 
+echo "-> Clonage du repo (main)"
+if [ -d .git ]; then
+    git reset --hard
+    git pull origin main
+else
+    git clone -b main $REPO_URL .
+fi
+
 echo "-> Création du fichier .env"
 echo "$ENV_FILE" > .env
 
