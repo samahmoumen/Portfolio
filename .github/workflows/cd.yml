@@ -1,19 +1,16 @@
 name: CD
 
-#on:
-#  workflow_run:
-#    workflows: ["CI"]
-#    types:
-#      - completed
-#  workflow_dispatch:
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+  workflow_dispatch:
+
 
 jobs:
   deploy:
-#    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Deploy on VM via SSH
     runs-on: ubuntu-latest
 
