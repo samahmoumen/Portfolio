@@ -4,6 +4,7 @@ ssh -p "$VM_PORT" -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" \
   DOCKERHUB_TOKEN="$DOCKERHUB_TOKEN" \
   ENV_FILE="$ENV_FILE" \
   PROJECT_DIR="$PROJECT_DIR" \
+  REPO_URL="$REPO_URL" \
 '#!/bin/bash
 set -e
 
