@@ -35,4 +35,4 @@ jobs:
           REPO_URL: ${{ secrets.REPO_URL }}
           ENV_FILE: ${{ secrets.ENV_FILE }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-          DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_TOKEN }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
