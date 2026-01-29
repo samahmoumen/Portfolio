@@ -8,10 +8,10 @@ ssh -p "$VM_PORT" -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" \
 '#!/bin/bash
 set -e
 
-if [[ -z "$PROJECT_DIR" || "$PROJECT_DIR" == "/" || "$PROJECT_DIR" == "$HOME" ]]; then
-    echo "Error: PROJECT_DIR ($PROJECT_DIR) is unsafe or undefined!"
-    exit 1
-fi
+echo "-> Projet directory: $PROJECT_DIR"
+mkdir -p "$PROJECT_DIR"
+cd "$PROJECT_DIR"
+
 echo "-> Création du dossier projet"
 mkdir -p "$PROJECT_DIR"
 cd "$PROJECT_DIR"
