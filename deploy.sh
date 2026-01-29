@@ -42,7 +42,7 @@ ssh -p $VM_PORT -o StrictHostKeyChecking=no $VM_USER@$VM_HOST << EOF
 
   echo "-> Pull de l'image Docker"
   docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-  docker pull samahmoumen/portfolio:latest
+  docker pull samahmn/portfolio:latest
 
   echo "-> Lancement ou redémarrage des containers avec .env"
   docker compose --env-file .env down
