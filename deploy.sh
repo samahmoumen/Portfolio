@@ -29,6 +29,8 @@ echo "-> Login Docker Hub"
 echo "'"$DOCKERHUB_TOKEN"'" | docker login -u "'"$DOCKERHUB_USERNAME"'" --password-stdin
 
 echo "-> Pull image Docker"
+echo "'"$DOCKERHUB_USERNAME/$DOCKERHUB_IMAGE:v2.0.0"'"
+
 docker pull "'"$DOCKERHUB_USERNAME/$DOCKERHUB_IMAGE:v2.0.0"'"
 
 echo "-> Lancement containers"
