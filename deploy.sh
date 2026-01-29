@@ -1,59 +1,55 @@
 #!/bin/bash
 
+set -e
+
 echo "=== Déploiement du portfolio sur $VM_HOST ==="
 
-
 mkdir -p ~/.ssh
-ssh-keyscan -H $VM_HOST >> ~/.ssh/known_hosts
+ssh-keyscan -H "$VM_HOST" >> ~/.ssh/known_hosts
 
-
-ssh -t -p $VM_PORT -o StrictHostKeyChecking=no $VM_USER@$VM_HOST << EOF
+ssh -p "$VM_PORT" -o StrictHostKeyChecking=no "$VM_USER@$VM_HOST" << EOF
   set -e
 
+  PROJECT_DIR="$PROJECT_DIR"
+  REPO_URL="$REPO_URL"
+  ENV_FILE="$ENV_FILE"
+  DOCKERHUB_USERNAME="$DOCKERHUB_USERNAME"
+  DOCKERHUB_TOKEN="$DOCKERHUB_TOKEN"
+
   echo "-> Création du dossier projet"
-  mkdir -p $PROJECT_DIR
-  cd $PROJECT_DIR
+  mkdir -p "\$PROJECT_DIR"
+  cd "\$PROJECT_DIR"
 
   echo "-> Clonage ou mise à jour du repo"
   if [ -d .git ]; then
     git pull
   else
-    git clone $REPO_URL .
+    git clone "\$REPO_URL" .
   fi
 
-  echo "-> Création ou mise à jour du fichier .env"
-  echo "$ENV_FILE" > .env
+  echo "-> Création du fichier .env"
+  echo "\$ENV_FILE" > .env
 
-  echo "-> Vérification installation Docker"
-  if ! command -v docker &> /dev/null; then
-    echo "Docker non trouvé, installation..."
+  echo "-> Vérification Docker"
+  if ! docker version &> /dev/null; then
     sudo apt update
     sudo apt install -y docker.io
     sudo systemctl enable docker
     sudo systemctl start docker
   fi
 
-  echo "-> Vérification installation Docker Compose"
-  if ! command -v docker-compose &> /dev/null; then
-    echo "Docker Compose non trouvé, installation..."
-    sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.1/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-  fi
+  echo "-> Login Docker Hub"
+  echo "\$DOCKERHUB_TOKEN" | docker login -u "\$DOCKERHUB_USERNAME" --password-stdin
 
-  echo "-> Pull de l'image Docker"
-  docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_TOKEN
-  docker pull $DOCKERHUB_USERNAME/samahmoumen-portfolio:latest
+  echo "-> Pull image Docker"
+  docker pull "\$DOCKERHUB_USERNAME/samahmoumen-portfolio:latest"
 
-  echo "-> Lancement ou redémarrage des containers avec .env"
-  docker compose --env-file .env down
-  docker compose --env-file .env up -d --build
+  echo "-> Lancement containers"
+  docker compose --env-file .env down || true
+  docker compose --env-file .env up -d
 
-  echo "-> Nettoyage des anciennes images et conteneurs"
-  docker system prune -f
-
-  echo "-> Vérification des containers et health"
+  echo "-> Containers actifs"
   docker ps
-  docker inspect --format='{{json .State.Health}}' portfolio | jq
 EOF
 
 echo "=== Déploiement terminé ✅ ==="
