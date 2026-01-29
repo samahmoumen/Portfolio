@@ -1,14 +1,14 @@
 
-
-## **DEPLOYMENT.md**
+# **DEPLOYMENT.md**
 
 ## Pré-requis
 
 * Une VM Ubuntu/Debian avec accès SSH
 * Docker et Docker Compose installés
-* Accès à Internet pour pull des images (ou clone du repo)
-* `.env.exemple` présent dans le repo (à copier en `.env` sur la VM)
+* Accès à Internet pour pull des images ou cloner le repo
+* `.env.exemple` présent dans le repo
 * Optionnel : nom de domaine et certificat SSL pour HTTPS
+* Port interne de l’application défini dans `.env` (ex : `APP_PORT=80`)
 
 ---
 
@@ -17,12 +17,18 @@
 ### 1️⃣ Se connecter à la VM
 
 ```bash
-ssh tython@135.125.4.184 -p 2702
+ssh -p <VM_PORT> <VM_USER>@<VM_HOST>
+```
+
+Exemple pour ton setup :
+
+```bash
+ssh -p 2702 tython@135.125.4.184
 ```
 
 ---
 
-### 2️⃣ Créer un dossier pour le projet
+### 2️⃣ Créer le dossier du projet
 
 ```bash
 mkdir -p ~/portfolio
@@ -35,7 +41,7 @@ cd ~/portfolio
 
 ```bash
 if [ -d .git ]; then
-    git pull
+    git pull origin main
 else
     git clone https://github.com/samahmoumen/Portfolio.git .
 fi
@@ -47,16 +53,23 @@ fi
 
 ```bash
 cp .env.exemple .env
-nano .env      # puis modifier les valeurs si besoin (PORT, API_URL, DB credentials…)
+nano .env
 ```
 
+Modifie les valeurs si besoin :
+
+* `APP_PORT` → port interne du container
+* `API_URL`, `DB_*` → endpoints et credentials
+* Tout autre secret nécessaire à l’application
+
+> ⚠️ Ne pas versionner `.env` contenant des secrets dans GitHub.
 
 ---
 
 ### 5️⃣ Lancer l’application avec Docker Compose
 
 ```bash
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 * `-d` → mode détaché
@@ -68,17 +81,19 @@ docker inspect --format='{{json .State.Health}}' portfolio
 docker logs -f portfolio
 ```
 
+> Ton container écoute sur le port défini dans `.env` (`APP_PORT`) et expose ce port sur la VM via Docker Compose.
+
 ---
 
 ### 6️⃣ Accéder à l’application
 
-* Frontend exposé sur le port défini dans `.env` (`PORT`), par exemple :
+* Frontend exposé sur le port défini dans `.env` (`APP_PORT`), par exemple :
 
 ```
-http://135.125.4.184:2702
+http://<VM_HOST>:<APP_PORT>
 ```
 
-
+* Si reverse proxy (Nginx) configuré, accéder via ton domaine ou HTTPS.
 
 ---
 
@@ -88,18 +103,20 @@ Lorsqu’une nouvelle version est disponible :
 
 ```bash
 cd ~/portfolio
-git pull
+git pull origin main
 docker compose -f docker-compose.prod.yml pull
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d --build
 docker system prune -f
 ```
+
+> ⚡ GitHub Actions CD peut automatiser cette étape via `deploy.sh`.
 
 ---
 
 ### 8️⃣ Bonnes pratiques
 
-* Ajouter `restart: unless-stopped` dans `docker-compose.prod.yml` pour redémarrage automatique après reboot
-* Configurer firewall :
+* Ajouter `restart: unless-stopped` dans `docker-compose.prod.yml` pour redémarrage automatique
+* Configurer firewall sur la VM :
 
 ```bash
 sudo ufw allow 22/tcp    # SSH
@@ -108,7 +125,7 @@ sudo ufw allow 443/tcp   # HTTPS
 sudo ufw enable
 ```
 
-* Backup base de données si utilisée (Postgres) :
+* Backup de la base de données (si Postgres) :
 
 ```bash
 docker exec -t db pg_dumpall -c -U user > dump_$(date +%F).sql
@@ -116,16 +133,14 @@ docker exec -t db pg_dumpall -c -U user > dump_$(date +%F).sql
 
 * Observabilité minimale :
 
-    * Logs Docker avec rotation (`max-size`, `max-file`)
-    * Healthcheck défini dans `docker-compose.prod.yml`
-    * Optionnel : Prometheus + Grafana ou Netdata pour monitoring léger
+  * Healthcheck dans Docker Compose
+  * Logs Docker avec rotation (`max-size`, `max-file`)
+  * Optionnel : monitoring léger (Netdata, Prometheus/Grafana)
 
 * Sécurité minimale :
 
-    * `.env` séparé de GitHub
-    * Ports exposés uniquement nécessaires
-    * Reverse proxy Nginx avec headers sécurité et rate limiting
-    * HTTPS via Let’s Encrypt (bonus)
-
----
+  * `.env` séparé de GitHub
+  * Exposer uniquement les ports nécessaires
+  * Reverse proxy Nginx avec headers sécurité et rate limiting
+  * HTTPS via Let’s Encrypt pour le domaine (optionnel mais recommandé)
 

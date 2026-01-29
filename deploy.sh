@@ -1,40 +1,49 @@
 #!/bin/bash
-# deploy.sh - Déploiement minimal du portfolio sur VM via SSH + Docker Compose
 
+echo "=== Déploiement du portfolio sur $VM_HOST ==="
 
-USER_VM="tython"                     # utilisateur VM
-IP_VM="123.456.78.90"                # IP publique VM
-PROJECT_DIR="~/Portfolio"             # dossier projet sur la VM
-REPO_URL="https://github.com/samahmoumen/Portfolio.git" # repo GitHub
+ssh -p $VM_PORT $VM_USER@$VM_HOST << 'EOF'
+  echo "-> Création du dossier projet"
+  mkdir -p $PROJECT_DIR
+  cd $PROJECT_DIR
 
-# ===========================
-# SCRIPT
-# ===========================
-echo "=== Déploiement du portfolio sur $IP_VM ==="
-
-ssh $USER_VM@$IP_VM << 'EOF'
-  # Créer le dossier projet
-  mkdir -p ~/portfolio
-  cd ~/portfolio
-
-  # Cloner ou mettre à jour le repo
+  echo "-> Clonage ou mise à jour du repo"
   if [ -d .git ]; then
     git pull
   else
-    git clone https://github.com/samahmoumen/Portfolio.git .
+    git clone $REPO_URL .
   fi
 
-  # Pull de l'image Docker
+  echo "-> Vérification installation Docker"
+  if ! command -v docker &> /dev/null; then
+    echo "Docker non trouvé, installation..."
+    sudo apt update
+    sudo apt install -y docker.io
+    sudo systemctl enable docker
+    sudo systemctl start docker
+  fi
+
+  echo "-> Vérification installation Docker Compose"
+  if ! command -v docker-compose &> /dev/null; then
+    echo "Docker Compose non trouvé, installation..."
+    sudo curl -L "https://github.com/docker/compose/releases/download/v2.23.1/docker-compose-\$(uname -s)-\$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+  fi
+
+  echo "-> Pull de l'image Docker"
   docker pull samahmoumen/portfolio:latest
 
-  # Lancer ou redémarrer les conteneurs
-  docker compose up -d
+  echo "-> Lancement ou redémarrage des containers avec .env"
+  docker compose --env-file $ENV_FILE down
+  docker compose --env-file $ENV_FILE up -d --build
 
-  # Nettoyer anciennes images et conteneurs
+  echo "-> Nettoyage des anciennes images et conteneurs"
   docker system prune -f
 
-  # Vérifier les conteneurs
+  echo "-> Vérification des containers et health"
   docker ps
+  docker inspect --format='{{json .State.Health}}' portfolio | jq
 EOF
+
 
 echo "=== Déploiement terminé ✅ ==="
