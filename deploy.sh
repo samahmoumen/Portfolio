@@ -16,10 +16,10 @@ cd "'"$PROJECT_DIR"'"
 
 echo "-> Clonage ou mise à jour du repo"
 if [ -d .git ]; then
-    git reset --hard
-    git pull
+    git fetch origin
+    git reset --hard origin/main
 else
-    git clone "'"$REPO_URL"'" .
+    git clone -b main "$REPO_URL" .
 fi
 
 echo "-> Création du fichier .env"
