@@ -1,0 +1,19 @@
+name: Sync to GitLab
+on:
+  workflow_run:
+    workflows: ["CI + CD"]
+    types:
+      - completed
+
+jobs:
+  push-to-gitlab:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          git remote add gitlab https://gitlab.com/samahmn98/Portfolio.git
+          git push gitlab main --force
