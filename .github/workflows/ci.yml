@@ -8,7 +8,7 @@ on:
     branches:
       - main
   workflow_dispatch:
-#abcd
+
 jobs:
   build:
     name: Build and Push Docker Image
@@ -48,7 +48,6 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKERHUB_IMAGE }}:v2.0.0
 
-
   deploy:
     name: Deploy on VM via SSH
     runs-on: ubuntu-latest
@@ -77,3 +76,24 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           DOCKERHUB_IMAGE: ${{ secrets.DOCKERHUB_IMAGE }}
           REPO_URL: ${{ secrets.REPO_URL }}
+
+  sync_gitlab:
+    name: Sync to GitLab
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+
+      - name: Push to GitLab
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          git remote add gitlab https://oauth2:${{ secrets.GITLAB_TOKEN }}@gitlab.com/samahmn98/Portfolio.git
+          git push gitlab main --force
+          git push gitlab --tags --force
